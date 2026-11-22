@@ -1,5 +1,9 @@
 # Data Architect Portfolio (UK) — Azure-first, GCP-aware
 
+![CI](https://github.com/nandhinikm/data-architect-portfolio/actions/workflows/ci.yml/badge.svg)
+
+![CI](https://github.com/<YOUR-GITHUB-USERNAME>/data-architect-portfolio/actions/workflows/ci.yml/badge.svg)
+
 Goal: demonstrate senior/principal data architect credibility through **decisions, trade-offs and evidence**, not tool screenshots.
 
 ## How to read this repo
