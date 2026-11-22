@@ -1,0 +1,11 @@
+# What-if: <scenario>
+- Area:
+- Trigger / change:
+- Blast radius:
+- Detection (how would we know?):
+- Immediate response:
+- Root-cause fix / design change:
+- Trade-off accepted:
+- Azure implementation:
+- GCP equivalent:
+- Metrics / SLO affected:
