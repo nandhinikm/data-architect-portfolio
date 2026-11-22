@@ -1,0 +1,12 @@
+# What-if: 40 million small files in the bronze layer
+
+- Area: Storage and lakehouse (bronze Delta table on ADLS Gen2)
+- Trigger / change: A streaming job with a very short trigger interval, a source that delivers thousands of tiny files, or a table partitioned too finely (for example by hour) writes huge numbers of small files over time.
+- Blast radius: Slow queries and long planning time on bronze and everything built on it (silver and gold refreshes, BI), higher storage transaction costs, and longer pipeline runtimes that can threaten freshness SLAs.
+- Detection (how would we know?): Daily check of DESCRIBE DETAIL on bronze tables. Alert when average file size drops below 64 MB, investigate below 128 MB. Alert when more than 20% of files in a partition are under 16 MB. Alert when file count grows more than 10x its baseline. Confirm with Spark task counts, query planning time and ADLS transaction metrics in Azure Monitor.
+- Immediate response: Confirm the cause first (trigger interval, source file sizes, partition scheme). Run OPTIMIZE on the hot recent partitions off-peak. Fix ingestion batching the same day so the problem stops growing. Compact older history gradually under a cost cap. Do not run VACUUM until readers and time travel needs are confirmed.
+- Root-cause fix / design change: Larger streaming triggers and batch size limits, optimized writes and auto compaction enabled, no partitioning on tables under about 1 TB, size and time windows on Event Hubs Capture, and a data contract asking providers for fewer, larger files.
+- Trade-off accepted: Slightly higher data latency from larger batches, and extra compute cost for scheduled compaction, in exchange for faster queries and lower storage operation costs.
+- Azure implementation: Delta OPTIMIZE with auto compaction (Databricks or Fabric table maintenance), Event Hubs Capture with both size and time windows, a scheduled monitoring job on file statistics, and Azure Monitor alerts routed to the data platform team.
+- GCP equivalent: BigQuery managed tables handle physical layout internally, so the issue mainly affects external or BigLake tables over Cloud Storage. There, tune Dataflow windowing and shard counts when writing to GCS, and compact files with a scheduled job. GCS has a flat namespace, so listing behaves differently from ADLS Gen2.
+- Metrics / SLO affected: Query latency (p95), data freshness, pipeline runtime, average file size, and storage cost per TB.
